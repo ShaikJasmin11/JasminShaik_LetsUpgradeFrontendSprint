@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Daily Dose – Productivity Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome v6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" />
+</head>
+<body>
+
+  <!-- HEADER SECTION -->
+  <header class="header">
+    <h1 class="dashboard-title">
+    <i class="fa-solid fa-bolt-lightning"></i> <span>Daily Dose</span>
+    </h1>
+    <p class="dashboard-subtext">Hello, Jasmin! Ready to crush today?</p>
+  </header>
+
+  <main class="dashboard-container">
+
+    <!-- Task Manager Panel -->
+    <section class="task-panel">
+      <div class="task-header">
+        <h2><i class="fa-solid fa-tasks"></i> Today’s Tasks</h2>
+        <span class="task-count">0 Tasks</span>
+      </div>
+
+      <ul class="task-list">
+        <li class="task-item high">
+          <div class="task-info">
+            <label>
+              <input type="checkbox" />
+              <span class="task-title">Submit Frontend Sprint</span>
+            </label>
+          </div>
+          <div class="task-meta">
+            <span class="task-time">10:00 AM</span>
+            <span class="priority high">High</span>
+          </div>
+          <i class="fa-solid fa-trash delete-icon"></i>
+        </li>
+      </ul>
+
+      <button class="add-task-btn">+ Add Task</button>
+    </section>
+
+    <!-- ADD TASK MODAL -->
+    <div class="modal-overlay" id="taskModal">
+      <div class="modal-content">
+        <h3>Add New Task</h3>
+        <form id="addTaskForm">
+          <label for="taskName">Task Name</label>
+          <input type="text" id="taskName" placeholder="Enter task..." required />
+
+          <label for="taskTime">Time</label>
+          <input type="time" id="taskTime" required />
+
+          <label for="taskPriority">Priority</label>
+          <select id="taskPriority">
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+          </select>
+
+          <div class="modal-actions">
+            <button type="button" class="close-modal-btn">Cancel</button>
+            <button type="submit" class="submit-btn">Add Task</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Weather Summary Card -->
+    <section class="weather-card">
+      <div class="weather-header">
+        <h3><i class="fa-solid fa-cloud-sun"></i> Weather</h3>
+        <span class="location">📍 Mumbai, India</span>
+      </div>
+
+      <div class="weather-main">
+        <h1 class="temperature">34°C</h1>
+        <p class="description">Cloudy</p>
+        <i class="fa-solid fa-sun weather-icon"></i>
+      </div>
+
+      <div class="weather-forecast">
+        <div class="forecast-item">
+          <span>💧 Humidity</span>
+          <span>57%</span>
+        </div>
+        <div class="forecast-item">
+          <span>🌬 Wind</span>
+          <span>16 km/h</span>
+        </div>
+        <div class="forecast-item">
+          <span>🌧 Rain</span>
+          <span>30%</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quote of the Day Card -->
+    <section class="quote-card">
+      <div class="quote-header">
+        <h3><i class="fa-solid fa-quote-left"></i> Quote of the Day</h3>
+      </div>
+      <blockquote class="quote-text" id="quoteText">Loading quote...</blockquote>
+      <!-- ✅ FIXED: Added missing ID -->
+      <p class="quote-author" id="quoteAuthor">— Marie Forleo</p>
+    </section>
+
+    <!-- Calendar Component -->
+    <section class="calendar-component">
+      <div class="calendar-card">
+        <div class="calendar-header">
+          <h3><i class="fa-solid fa-calendar-days"></i> Calendar</h3>
+          <div class="nav-arrows">
+            <button id="prevMonth"><i class="fa-solid fa-chevron-left"></i></button>
+            <span id="monthLabel">June 2025</span>
+            <button id="nextMonth"><i class="fa-solid fa-chevron-right"></i></button>
+          </div>
+        </div>
+
+        <div class="calendar-weekdays">
+          <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+        </div>
+
+        <div class="calendar-days" id="calendarDays"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- JavaScript Logic -->
+  <script>
+    const modal = document.getElementById('taskModal');
+    const addBtn = document.querySelector('.add-task-btn');
+    const closeBtn = document.querySelector('.close-modal-btn');
+    const form = document.getElementById('addTaskForm');
+    const taskList = document.querySelector('.task-list');
+    const taskCount = document.querySelector('.task-count');
+
+    addBtn.onclick = () => {
+      modal.style.display = 'flex';
+    };
+
+    closeBtn.onclick = () => {
+      modal.style.display = 'none';
+    };
+
+    window.onclick = (e) => {
+      if (e.target === modal) modal.style.display = 'none';
+    };
+
+    form.onsubmit = function (e) {
+      e.preventDefault();
+
+      const name = document.getElementById('taskName').value.trim();
+      const time = document.getElementById('taskTime').value;
+      const priority = document.getElementById('taskPriority').value;
+
+      if (!name) return;
+
+      const li = document.createElement('li');
+      li.className = `task-item ${priority}`;
+      li.innerHTML = `
+        <div class="task-info">
+          <label>
+            <input type="checkbox" />
+            <span class="task-title">${name}</span>
+          </label>
+        </div>
+        <div class="task-meta">
+          <span class="task-time">${time}</span>
+          <span class="priority ${priority}">${priority.charAt(0).toUpperCase() + priority.slice(1)}</span>
+        </div>
+        <i class="fa-solid fa-trash delete-icon"></i>
+      `;
+
+      taskList.appendChild(li);
+      updateTaskCount();
+      modal.style.display = 'none';
+      form.reset();
+    };
+
+    taskList.addEventListener('click', function (e) {
+      if (e.target.classList.contains('delete-icon')) {
+        e.target.closest('.task-item').remove();
+        updateTaskCount();
+      }
+    });
+
+    function updateTaskCount() {
+      const tasks = document.querySelectorAll('.task-list .task-item');
+      taskCount.textContent = `${tasks.length} Task${tasks.length !== 1 ? 's' : ''}`;
+    }
+
+    updateTaskCount(); // initial call
+
+    const quotes = [
+      { text: "Success doesn’t come from what you do occasionally, it comes from what you do consistently.", author: "Marie Forleo" },
+      { text: "Don’t watch the clock; do what it does. Keep going.", author: "Sam Levenson" },
+      { text: "Start where you are. Use what you have. Do what you can.", author: "Arthur Ashe" },
+      { text: "The secret of getting ahead is getting started.", author: "Mark Twain" },
+      { text: "You don’t need more time. You just need to decide.", author: "Seth Godin" },
+      { text: "The way to get started is to quit talking and begin doing.", author: "Walt Disney" },
+      { text: "Stay away from those people who try to disparage your ambitions.", author: "Mark Twain" },
+      { text: "Small progress is still progress.", author: "Anonymous" },
+      { text: "Discipline is choosing between what you want now and what you want most.", author: "Abraham Lincoln" },
+      { text: "Believe you can and you’re halfway there.", author: "Theodore Roosevelt" }
+    ];
+
+    function loadRandomQuote() {
+      const quote = quotes[Math.floor(Math.random() * quotes.length)];
+      document.getElementById("quoteText").textContent = `“${quote.text}”`;
+      const authorElem = document.getElementById("quoteAuthor");
+      if (authorElem) authorElem.textContent = `— ${quote.author}`;
+    }
+
+    loadRandomQuote(); // Load quote on page load
+
+    // Calendar Logic
+    const calendarDays = document.getElementById("calendarDays");
+    const monthLabel = document.getElementById("monthLabel");
+    const prevBtn = document.getElementById("prevMonth");
+    const nextBtn = document.getElementById("nextMonth");
+
+    let currentDate = new Date();
+    const today = new Date();
+
+    const events = {
+      "2025-07-10": true,
+      "2025-07-15": true
+    };
+
+    function renderCalendar(date) {
+      const year = date.getFullYear();
+      const month = date.getMonth();
+
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const prevLastDate = new Date(year, month, 0).getDate();
+
+      calendarDays.innerHTML = "";
+
+      const monthNames = ["January", "February", "March", "April", "May", "June",
+                          "July", "August", "September", "October", "November", "December"];
+      monthLabel.textContent = `${monthNames[month]} ${year}`;
+
+      for (let i = firstDay - 1; i >= 0; i--) {
+        const div = document.createElement("div");
+        div.className = "calendar-day inactive";
+        div.textContent = prevLastDate - i;
+        calendarDays.appendChild(div);
+      }
+
+      for (let i = 1; i <= daysInMonth; i++) {
+        const div = document.createElement("div");
+        div.className = "calendar-day";
+        div.textContent = i;
+
+        const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+        if (events[dateKey]) div.classList.add("event");
+
+        if (
+          i === today.getDate() &&
+          month === today.getMonth() &&
+          year === today.getFullYear()
+        ) {
+          div.classList.add("today");
+        }
+
+        calendarDays.appendChild(div);
+      }
+
+      const totalCells = firstDay + daysInMonth;
+      const remaining = 42 - totalCells;
+
+      for (let i = 1; i <= remaining; i++) {
+        const div = document.createElement("div");
+        div.className = "calendar-day inactive";
+        div.textContent = i;
+        calendarDays.appendChild(div);
+      }
+    }
+
+    prevBtn.onclick = () => {
+      currentDate.setMonth(currentDate.getMonth() - 1);
+      renderCalendar(currentDate);
+    };
+
+    nextBtn.onclick = () => {
+      currentDate.setMonth(currentDate.getMonth() + 1);
+      renderCalendar(currentDate);
+    };
+
+    renderCalendar(currentDate); // Initial load
+  </script>
+
+        <!-- FOOTER -->
+  <footer class="dashboard-footer">
+  <div class="footer-left">
+    <i class="fa-solid fa-bolt-lightning"></i> <span>Daily Dose</span>
+  </div>
+
+  <div class="footer-center">
+    © 2025 Daily Dose Dashboard. All rights reserved - Jasmin Shaik
+  </div>
+
+  <div class="footer-right">
+    <a href="https://github.com/ShaikJasmin11"><i class="fab fa-github"></i></a>
+    <a href="www.linkedin.com/in/jasminshaik-tech"><i class="fab fa-linkedin"></i></a>>
+  </div>
+</footer>
+
+</body>
+</html>
